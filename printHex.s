@@ -1,6 +1,6 @@
 .data
 prompt1: .asciiz "Enter an integer number: "
-answer: .space 9
+answer: .asciiz "0x00000000"
 .text
 .globl main
 
@@ -10,6 +10,7 @@ main:
         syscall
 
         la $a1, answer      # load the address of answer into $a1
+	addi $a1, $a1, 9
 
         li $v0, 5       #allow for input of integer
         syscall
@@ -27,15 +28,15 @@ main:
 
 
 print_hex:
-        andi $t0, $a0, 15
-        addi $a1, $a1, 1
+        andi $t0, $a0, 0xf
 
-        ble $t0, 10, lessThanTen        
+        ble $t0, 9, lessThanTen        
         addi $t0, $t0, 39   
     lessThanTen:
         addi $t0, $t0, 48
         sb $t0, 0($a1)
         srl $a0, $a0, 4
+	addi $a1, $a1, -1
         bne $a0, $0, print_hex
     done:
         jr $ra
