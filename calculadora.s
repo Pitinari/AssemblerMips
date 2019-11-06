@@ -4,8 +4,10 @@ numCompletoMsg: .asciiz "El numero en Hexa: "
 numCompleto: .asciiz "0x00000000"
 mantisaMsg: .asciiz "La mantisa en Hexa: "
 mantisa: .asciiz "0x000000"
-exponenteMsg: .asciiz "El exponente en exceso, en Hexa: "
-exponente: .asciiz "0x00"
+exponenteExcesoMsg: .asciiz "El exponente en exceso, en Hexa: "
+exponenteExceso: .asciiz "0x00"
+exponenteMsg: .asciiz "El exponente sin exceso (complemento a dos), en Hexa: "
+exponente: .asciiz "0x00000000"
 signoMsg: .asciiz "El signo en Hexa: "
 signo: .asciiz "0x0"
 
@@ -67,8 +69,28 @@ syscall
 li $t1, 0x7f800000
 and $a0, $s0, $t1 #cargo en el parametro $a0 el and de 0x7f800000 que es equivalente al retorno de los 8 bit del exponente
 srl $a0, $a0, 23  #muevo hacia la "derecha" 23 bits (los equivalentes a la mantisa), para tener el numero completo del exponente
-la $a1, exponente #segundo parametro la direccion de memoria del string del exponente
+la $a1, exponenteExceso #segundo parametro la direccion de memoria del string del exponente
 addi $a1, $a1, 3  #avanzo 3 bytes para iniciar del final del string
+jal print_hex
+
+li $v0, 4
+la $a0, exponenteExcesoMsg #mensaje previo
+syscall
+
+li $v0, 4
+la $a0, exponenteExceso #printeo exponente
+syscall
+
+li $v0, 11
+li $a0, 10  #salto de linea
+syscall
+
+li $t1, 0x7f800000
+and $a0, $s0, $t1 #cargo en el parametro $a0 el and de 0x7f800000 que es equivalente al retorno de los 8 bit del exponente
+srl $a0, $a0, 23  #muevo hacia la "derecha" 23 bits (los equivalentes a la mantisa), para tener el numero completo del exponente
+sub $a0, $a0, 127 #le resto el exceso
+la $a1, exponente #segundo parametro la direccion de memoria del string del exponente
+addi $a1, $a1, 9  #avanzo 3 bytes para iniciar del final del string
 jal print_hex
 
 li $v0, 4
